@@ -120,6 +120,29 @@ def appendimages(im1,im2):
     return concatenate((im1,im2), axis=1)
             
             
+def plot_matches(im1,im2,locs1,locs2matchscores,show_below=True):
+    im3 = appendimages(im1,im2)
+    if show_below:
+        im = vstack((im3,im3))
+    imshow(im3)
+    
+    cols1 = im1.shape[1]
+    for i,m in enumerate(matchscores):
+        if m>0:
+            plot([locs[i][1],locs2[m][1]+cols1],[locs1[i][0],locs2[m][0]], 'c')
+    axis('off')
+    wid = 5
+    harrisim = harris.compute_harris_response(im1,5) 
+    filtered_coords1 = harris.get_harris_points(harrisim,wid+1) 
+    d1 = harris.get_descriptors(im1,filtered_coords1,wid)
+    harrisim = harris.compute_harris_response(im2,5) 
+    filtered_coords2 = harris.get_harris_points(harrisim,wid+1) d2 = harris.get_descriptors(im2,filtered_coords2,wid)
+    
+    print 'starting matching'
+    matches = harris.match_twosided(d1,d2)
+    figure()
+    gray() harris.plot_matches(im1,im2,filtered_coords1,filtered_coords2,matches) 
+    show()
     
 def plot_harris_points(image, filtered_coords):
     """ Plots corners found in image. """
